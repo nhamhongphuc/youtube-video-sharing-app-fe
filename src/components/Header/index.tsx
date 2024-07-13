@@ -51,6 +51,10 @@ const AppHeader: React.FC = () => {
       fontSize: screens.md ? token.fontSizeHeading2 : token.fontSizeHeading3,
       margin: "0px",
     },
+    user: {
+      fontSize: token.fontSizeHeading4,
+      margin: "0px",
+    },
     titleWrapper: {
       alignItems: "center",
       justifyContent: "space-between",
@@ -85,7 +89,8 @@ const AppHeader: React.FC = () => {
               </svg>
               <Title style={styles.title}>Youtube Sharing</Title>
             </Space>
-            <Space>
+            <Space style={styles.titleWrapper}>
+              {user && <Title level={4} style={styles.user}>{`Welcome, ${user}`}</Title>}
               <Button type="primary" icon={<VideoCameraAddOutlined />}>Share Video</Button>
               <Button onClick={handleLogout} icon={<LogoutOutlined />}>Log out</Button>
             </Space>
