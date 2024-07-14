@@ -25,6 +25,7 @@ const useAuthStore = create<AuthState>((set) => ({
       const { accessToken } = response.data;
       const user = jwtDecode<Auth0JwtPayload>(accessToken);
       localStorage.setItem('token', accessToken);
+      localStorage.setItem('username', user.username);
       set({ user: user.username, loading: false, error: null });
     } catch (error: any) {
       set({ error: error.response?.data?.message || 'Sign in failed', loading: false });
@@ -42,6 +43,7 @@ const useAuthStore = create<AuthState>((set) => ({
   },
   signOut: () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('username');
     set({ user: null });
   },
 }));

@@ -2,15 +2,17 @@
 import { useEffect, useState } from "react";
 import AppHeader from "../components/Header";
 import api from "../services/api";
-import { List, Skeleton, Image, Grid, Typography, theme } from "antd";
+import { List, Skeleton, Image, Grid, Typography, message, theme } from "antd";
 import { timeAgo } from "../ultils/ultils";
 import { useNavigate } from "react-router-dom";
-import { AxiosError } from "axios";
-const { Paragraph, Text } = Typography;
+import axios from "axios";
+import { io } from "socket.io-client";
+const { Paragraph } = Typography;
+const socket = io("http://localhost:3005");
 
 const { useToken } = theme;
 const { useBreakpoint } = Grid;
-type Video = {
+export type Video = {
   id: string;
   URL: string;
   title: string;
@@ -26,35 +28,56 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const { token } = useToken();
   const screens = useBreakpoint();
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        const response = await api.get("/videos");
-        setVideos(response.data);
-      } catch (error: AxiosError | any) {
-        if (error.response.status === 401) {
-          localStorage.removeItem("token");
-          navigate("/signin");
-        }
-      } finally {
-        setLoading(false);
+
+  async function fetchData() {
+    try {
+      setLoading(true);
+      const response = await api.get("/videos");
+      setVideos(response.data);
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("username");
+        navigate("/signin");
       }
+    } finally {
+      setLoading(false);
     }
+  }
+  useEffect(() => {
     fetchData();
-  }, [navigate]);
+  }, []);
+
+  useEffect(() => {
+    socket.on("videoShared", (value) => {
+      const { userName, videoTitle } = value;
+      if (
+        !userName ||
+        !videoTitle ||
+        userName === localStorage.getItem("username")
+      )
+        return;
+
+      const messageText: string = `${userName} shared a new video: ${videoTitle}`;
+
+      message.info(messageText);
+    });
+
+    return () => {
+      socket.off("videoShared");
+    };
+  }, []);
 
   const styles = {
     section: {
       alignItems: "center",
       backgroundColor: token.colorBgContainer,
       display: "flex",
-      // height: screens.sm ? "100vh" : "auto",
       padding: screens.md ? `${token.sizeXXS}px 0px` : "0px",
     },
     list: {
       margin: "0 auto",
-      width: "80%",
+      width: "90%",
       padding: screens.sm
         ? `${token.paddingXL}px`
         : `${token.sizeXXL}px ${token.padding}px`,
@@ -62,7 +85,7 @@ const Home = () => {
   };
   return (
     <>
-      <AppHeader />
+      <AppHeader fetchData={fetchData} />
       <div>
         {loading ? (
           <Skeleton active />
@@ -96,7 +119,12 @@ const Home = () => {
               >
                 <List.Item.Meta
                   title={<a href={item.URL}>{item.title}</a>}
-                  description={"Shared by: " + item.username + ' • ' + timeAgo(item.createdAt)}
+                  description={
+                    "Shared by: " +
+                    item.username +
+                    " • " +
+                    timeAgo(item.createdAt)
+                  }
                 />
                 <Paragraph ellipsis={{ rows: 8 }}>{item.description}</Paragraph>
               </List.Item>

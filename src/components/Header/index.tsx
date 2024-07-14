@@ -1,18 +1,64 @@
-import React from "react";
-import { Button, Divider, Grid, Space, theme, Typography } from "antd";
+import React, { useState } from "react";
+import {
+  Button,
+  Divider,
+  Grid,
+  Input,
+  message,
+  Modal,
+  Space,
+  theme,
+  Typography,
+} from "antd";
 import { VideoCameraAddOutlined, LogoutOutlined } from "@ant-design/icons";
 import useAuthStore from "../../store/authStore";
 import { useNavigate } from "react-router-dom";
+import api from "../../services/api";
+import axios from "axios";
 
 const { useToken } = theme;
 const { useBreakpoint } = Grid;
 const { Title } = Typography;
 
-const AppHeader: React.FC = () => {
-  const { user, signOut } = useAuthStore();
+const AppHeader = (props: { fetchData: () => Promise<void> }) => {
+  const { fetchData } = props;
+  const { signOut } = useAuthStore();
   const navigate = useNavigate();
   const { token } = useToken();
   const screens = useBreakpoint();
+  const [open, setOpen] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [url, setURL] = useState<string>();
+  const username = localStorage.getItem("username");
+
+  const showModal = () => {
+    setOpen(true);
+  };
+
+  const handleOk = async () => {
+    try {
+      setConfirmLoading(true);
+      await api.post("/videos", { url });
+      message.success("Video shared successfully.");
+
+      fetchData();
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("username");
+        navigate("/signin");
+      }
+      message.error("Failed to share video. Please try again.");
+    } finally {
+      setURL("");
+      setConfirmLoading(false);
+      setOpen(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setOpen(false);
+  };
 
   const handleLogout = async () => {
     await signOut();
@@ -90,14 +136,41 @@ const AppHeader: React.FC = () => {
               <Title style={styles.title}>Youtube Sharing</Title>
             </Space>
             <Space style={styles.titleWrapper}>
-              {user && <Title level={4} style={styles.user}>{`Welcome, ${user}`}</Title>}
-              <Button type="primary" icon={<VideoCameraAddOutlined />}>Share Video</Button>
-              <Button onClick={handleLogout} icon={<LogoutOutlined />}>Log out</Button>
+              {username && (
+                <Title
+                  level={4}
+                  style={styles.user}
+                >{`Welcome, ${username}`}</Title>
+              )}
+              <Button
+                type="primary"
+                icon={<VideoCameraAddOutlined />}
+                onClick={showModal}
+              >
+                Share Video
+              </Button>
+              <Button onClick={handleLogout} icon={<LogoutOutlined />}>
+                Log out
+              </Button>
             </Space>
           </Space>
         </div>
       </div>
       <Divider style={styles.divider} />
+      <Modal
+        title="Share Video"
+        open={open}
+        centered
+        onOk={handleOk}
+        confirmLoading={confirmLoading}
+        onCancel={handleCancel}
+      >
+        <Input
+          value={url}
+          onChange={(event) => setURL(event.currentTarget.value)}
+          placeholder="Youtube link"
+        />
+      </Modal>
     </>
   );
 };
