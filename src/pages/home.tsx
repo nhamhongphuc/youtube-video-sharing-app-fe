@@ -1,5 +1,5 @@
 // src/Home.tsx
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import AppHeader from "../components/Header";
 import api from "../services/api";
 import { List, Skeleton, Image, Grid, Typography, message, theme } from "antd";
@@ -29,7 +29,7 @@ const Home = () => {
   const { token } = useToken();
   const screens = useBreakpoint();
 
-  async function fetchData() {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const response = await api.get("/videos");
@@ -43,10 +43,11 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
-  }
+  }, [navigate]);
+  
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   useEffect(() => {
     socket.on("videoShared", (value) => {
