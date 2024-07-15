@@ -1,46 +1,99 @@
-# Getting Started with Create React App
+# YouTube Video Sharing App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Introduction
+This project is a web application for sharing YouTube videos. It demonstrates backend and frontend development skills, including user registration, video sharing, and real-time notifications. The app is built using NestJS for the backend and React with TypeScript for the frontend. The key features of the application include:
 
-## Available Scripts
+1. User registration and login
+2. Sharing YouTube videos
+3. Viewing a list of shared videos
+4. Real-time notifications for new video shares
 
-In the project directory, you can run:
+## Prerequisites
+Before setting up the project, ensure you have the following software installed:
 
-### `yarn start`
+- **Node.js**: Version 14.17.0 or higher
+- **Yarn**: Version 1.22.10 or higher
+- **PostgreSQL**: Version 12 or higher
+- **Docker**: (optional, for Docker deployment)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Installation & Configuration
+Follow these steps to set up the project on your local machine:
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+1. Clone the repository:
+    ```bash
+    git clone <repository-url>
+    cd <repository-directory>
+    ```
 
-### `yarn test`
+2.  Run PostgreSQL on Docker:
+    ```bash
+    docker run --name postgres-nest -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d postgres
+    ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+3. Install backend dependencies:
+    ```bash
+    cd backend
+    yarn install
+    ```
 
-### `yarn build`
+4. Install frontend dependencies:
+    ```bash
+    cd ../frontend
+    yarn install
+    ```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+5. Configure environment variables:
+    - Copy `.env.stage.dev.template` to `.env.stage.dev` in backend and frontend directories
+    - Copy `.env.template` to `.env` in frontend directories
+    - Update the values in `.env.stage.dev` with your JWT_SECRET and YTB_API_KEY
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Running the Application
+Start the development server:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. Start the NestJS server:
+    ```bash
+    cd backend
+    yarn start:dev
+    ```
 
-### `yarn eject`
+2. Start the React dev server:
+    ```bash
+    cd ../frontend
+    yarn start
+    ```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+3. Access the application in your web browser at `http://localhost:3000`
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Usage
+To use the application:
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+1. Register a new user account.
+2. Log in with your credentials.
+3. Share a YouTube video by pasting the video URL.
+4. View the list of shared videos.
+5. Receive real-time notifications when new videos are shared.
 
-## Learn More
+## Running Tests
+To run the test suite:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+1. Run backend tests:
+    ```bash
+    cd backend
+    yarn test
+    ```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+2. Run frontend tests:
+    ```bash
+    cd ../frontend
+    yarn test
+    ```
+
+## Troubleshooting
+Common issues and their solutions:
+
+- **Database connection error**: Ensure PostgreSQL is running and the credentials in `.env.stage.dev` are correct.
+- **Frontend issues**: Make sure Node.js and Yarn are installed correctly, and dependencies are up-to-date.
+
+
+By following this README, you should be able to set up and run the YouTube Video Sharing App successfully. Happy coding!
