@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { io } from "socket.io-client";
 const { Paragraph } = Typography;
-const socket = io("http://localhost:3005");
+const socket = io(process.env.REACT_APP_API_URL || "http://localhost:3005");
 
 const { useToken } = theme;
 const { useBreakpoint } = Grid;
